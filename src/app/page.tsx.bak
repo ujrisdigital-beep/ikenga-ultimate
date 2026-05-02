@@ -1,0 +1,664 @@
+'use client';
+
+import { useState, useRef } from 'react';
+
+/* ─── Design tokens (ikenga.tech colour palette) ────────────────────── */
+const BG     = '#0c0c0c';
+const CARD   = '#141414';
+const GOLD   = '#D4AF37';
+const BGOLD  = 'rgba(212,175,55,0.18)';
+const BORDER = 'rgba(255,255,255,0.07)';
+const BGOLD_BORDER = 'rgba(212,175,55,0.25)';
+const GRAY   = 'rgba(255,255,255,0.55)';
+const SERIF  = "'Playfair Display', Georgia, serif";
+const SANS   = "'Inter', system-ui, sans-serif";
+
+/* ─── Content ────────────────────────────────────────────────────────── */
+const PRODUCTS = [
+  {
+    id: 'ikenga', name: 'IKENGA', tagline: 'Your Chi in Motion',
+    description: 'The original brand momentum engine. Authentic entrepreneurial fire for brands that refuse to move small.',
+    tone: 'bold, authentic, momentum-driven, entrepreneurial, unapologetic',
+    sample: 'Most brands post. Few brands move. The difference is not budget — it is Chi. Your audience can feel when content is manufactured. They can also feel when it is alive. We help you stay alive.',
+    platform: 'Instagram', accent: GOLD, formats: ['Social post', 'Email subject', 'Video hook'],
+  },
+  {
+    id: 'juo', name: 'JUO', tagline: 'Fresh Energy. Viral Reach.',
+    description: 'Playful, energetic, and culturally resonant. Built for brands that want to trend without losing substance.',
+    tone: 'playful, energetic, trendy, culturally resonant, high-impact',
+    sample: "This one's for the builders who eat setbacks for breakfast 🔥 We don't pivot — we level up. Your next chapter hits different when the energy is right.",
+    platform: 'TikTok', accent: '#A78BFA', formats: ['TikTok caption', 'Reel hook', 'Trending audio'],
+  },
+  {
+    id: 'oba', name: 'OBA', tagline: 'The Royal Standard',
+    description: 'Premium, dignified, and aspirational. For brands that lead from the front without raising their voice.',
+    tone: 'royal, dignified, premium, aspirational, sophisticated',
+    sample: 'Excellence is not a strategy. It is a standard. The brands that endure are those that never confused noise with authority.',
+    platform: 'LinkedIn', accent: '#F59E0B', formats: ['LinkedIn post', 'Executive statement', 'Brand authority'],
+  },
+  {
+    id: 'omenala', name: 'OMENALA', tagline: 'Rooted. Grounded. Timeless.',
+    description: 'Traditional wisdom meets modern brand expression. For brands with cultural roots and a message that transcends trend.',
+    tone: 'traditional, spiritual, grounding, warm, contemplative',
+    sample: 'Before the noise, there was a story. Before the brand, there was a purpose. Our ancestors knew that the most powerful thing you can do is speak from truth.',
+    platform: 'Email', accent: '#34D399', formats: ['Email newsletter', 'Brand story', 'Cultural post'],
+  },
+];
+
+const STATS = [
+  { number: '18', label: 'Platforms — one generation run' },
+  { number: '5',  label: 'Distinct brand voices (IKENGA · JUO · OBA · OMENALA · ICHEOKU)' },
+  { number: '∞',  label: 'Video scripts, carousels & posts — preview + edit before scheduling' },
+  { number: '30', label: 'Days of content scheduled in one session' },
+  { number: '1',  label: 'Brand DNA engine — every piece is uniquely yours' },
+];
+
+const BUILT_FOR = [
+  { title: 'Creators',           body: 'Stay visible without sacrificing your voice every time content pressure spikes.' },
+  { title: 'Agencies',           body: 'Scale client content with sharper memory, faster drafts, distinct voices per client.' },
+  { title: 'Founder-led brands', body: 'Turn scattered insight into a repeatable public presence that actually sounds like leadership.' },
+];
+
+const EXAMPLE_PROMPTS: Record<string, string> = {
+  'Brand pitch':   'Write a brand pitch for a premium African skincare brand entering the UK market for the first time.',
+  'Content hook':  'Create a content hook for a founder-led B2B SaaS company that helps small businesses manage payroll.',
+  'Campaign goal': 'Launch a 7-day awareness campaign for an African fashion label releasing its first international collection.',
+};
+
+const UJU_SECTIONS = [
+  { key: 'executive_summary',          num: '01', title: 'Executive Summary',              sub: 'Consensus Diagnostic' },
+  { key: 'market_context',             num: '02', title: 'Market Context',                 sub: 'Multi-Persona Landscape' },
+  { key: 'single_most_powerful_action',num: '03', title: 'Single Most Powerful Action',    sub: 'The Final Verdict' },
+  { key: 'seven_day_plan',             num: '04', title: '7-Day Execution Plan',           sub: 'The Integrated Roadmap' },
+  { key: 'resources_and_budget',       num: '05', title: 'Resources & Budget',             sub: 'Tiered Implementation' },
+  { key: 'success_metrics',            num: '06', title: 'Success Metrics',                sub: 'High-Stake KPIs' },
+  { key: 'risks_and_mitigations',      num: '07', title: 'Risks & Mitigations',            sub: 'Aggregated Gap Closures' },
+  { key: 'what_most_people_miss',      num: '08', title: 'What Most People Miss',          sub: 'The Tyler Wise Edge' },
+  { key: 'next_step',                  num: '09', title: 'Next Step',                      sub: 'Initiating Forward Motion' },
+];
+
+/* ─── IKENGA Logo SVG ────────────────────────────────────────────────── */
+function IkengaLogo({ size = 320 }: { size?: number }) {
+  return (
+    <svg width={size} height={size * 1.1} viewBox="0 0 320 352" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Left horn */}
+      <path d="M105 115 Q55 70 30 20 Q62 52 100 78" stroke={GOLD} strokeWidth="14" strokeLinecap="round" fill="none"/>
+      {/* Right horn */}
+      <path d="M215 115 Q265 70 290 20 Q258 52 220 78" stroke={GOLD} strokeWidth="14" strokeLinecap="round" fill="none"/>
+      {/* Body shield */}
+      <path d="M100 78 Q160 55 220 78 L240 155 Q200 225 160 250 Q120 225 80 155 Z" fill="#6B0000" opacity="0.95"/>
+      {/* Gold top band */}
+      <path d="M100 78 Q160 55 220 78 L228 105 Q160 85 92 105 Z" fill={GOLD} opacity="0.9"/>
+      {/* Gold middle band */}
+      <path d="M88 148 Q160 130 232 148 L238 170 Q160 152 82 170 Z" fill={GOLD} opacity="0.5"/>
+      {/* Center orb glow */}
+      <circle cx="160" cy="165" r="22" fill={GOLD} opacity="0.15"/>
+      <circle cx="160" cy="165" r="14" fill={GOLD} opacity="0.35"/>
+      <circle cx="160" cy="165" r="7"  fill={GOLD}/>
+      {/* Left eye */}
+      <circle cx="128" cy="105" r="5" fill={GOLD} opacity="0.7"/>
+      {/* Right eye */}
+      <circle cx="192" cy="105" r="5" fill={GOLD} opacity="0.7"/>
+      {/* IKENGA AI text */}
+      <text x="160" y="300" textAnchor="middle" fill={GOLD}
+        fontSize="32" fontWeight="700" letterSpacing="6"
+        fontFamily="'Playfair Display', Georgia, serif">
+        IKENGA
+      </text>
+      <text x="160" y="330" textAnchor="middle"
+        fill="rgba(212,175,55,0.55)" fontSize="13" letterSpacing="6"
+        fontFamily="'Inter', sans-serif">
+        AI
+      </text>
+    </svg>
+  );
+}
+
+/* ─── Page ───────────────────────────────────────────────────────────── */
+export default function Home() {
+  const [activeProduct, setActiveProduct] = useState('ikenga');
+  const [prompt, setPrompt]               = useState('');
+  const [running, setRunning]             = useState(false);
+  const [sections, setSections]           = useState<Record<string, string> | null>(null);
+  const [copied, setCopied]               = useState('');
+  const [error, setError]                 = useState('');
+  const [email, setEmail]                 = useState('');
+  const [emailDone, setEmailDone]         = useState(false);
+
+  const engineRef = useRef<HTMLDivElement>(null);
+  const activeP   = PRODUCTS.find(p => p.id === activeProduct)!;
+
+  const scrollTo = (ref: React.RefObject<HTMLDivElement>) =>
+    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  const runEngine = async () => {
+    if (!prompt.trim()) { setError('Paste a brand idea or content goal to begin.'); return; }
+    setError('');
+    setRunning(true);
+    setSections(null);
+    setCopied('');
+    try {
+      const res = await fetch('/api/uju-cycle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input: prompt, tone: 'ikenga', mode: 'strategic' }),
+      });
+      if (!res.ok) throw new Error(`Server error ${res.status}`);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      if (data.probe_detected) {
+        setSections({ executive_summary: data.message });
+        return;
+      }
+      setSections(data.sections ?? null);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Generation failed. Try again.');
+    } finally {
+      setRunning(false);
+    }
+  };
+
+  const copySection = async (key: string, text: string) => {
+    await navigator.clipboard.writeText(text).catch(() => {});
+    setCopied(key);
+    setTimeout(() => setCopied(''), 2000);
+  };
+
+  const handleKey = (e: React.KeyboardEvent) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') runEngine();
+  };
+
+  const handleEmail = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email.includes('@')) setEmailDone(true);
+  };
+
+  /* ─── Shared card style ─── */
+  const card = (extra?: React.CSSProperties): React.CSSProperties => ({
+    background: CARD, border: `1px solid ${BORDER}`, borderRadius: '16px', ...extra,
+  });
+
+  return (
+    <div style={{ fontFamily: SANS, background: BG, color: 'white', overflowX: 'hidden' }}>
+
+      {/* ── Nav ──────────────────────────────────────────── */}
+      <nav style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '20px 48px', position: 'sticky', top: 0, zIndex: 100,
+        background: 'rgba(12,12,12,0.9)', backdropFilter: 'blur(16px)',
+        borderBottom: `1px solid ${BORDER}`,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{
+            width: '36px', height: '36px', borderRadius: '8px',
+            background: BGOLD, border: `1px solid ${BGOLD_BORDER}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{ fontFamily: SERIF, color: GOLD, fontSize: '16px', fontWeight: 700 }}>I</span>
+          </div>
+          <div>
+            <div style={{ fontFamily: SERIF, fontSize: '18px', fontWeight: 700, color: GOLD, letterSpacing: '3px', lineHeight: 1 }}>
+              IKENGA
+            </div>
+            <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)', letterSpacing: '2.5px', marginTop: '2px' }}>
+              CHI IN MOTION
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <a href="/studio" style={{
+            color: GOLD, fontSize: '13px',
+            background: 'rgba(212,175,55,0.1)', border: `1px solid rgba(212,175,55,0.3)`,
+            borderRadius: '24px', padding: '8px 20px', cursor: 'pointer', letterSpacing: '0.3px',
+            textDecoration: 'none', fontWeight: 600,
+          }}>
+            Open Studio →
+          </a>
+          <span style={{
+            background: 'rgba(255,255,255,0.05)', border: `1px solid ${BORDER}`,
+            color: GOLD, fontSize: '10px', padding: '8px 18px',
+            borderRadius: '24px', letterSpacing: '1.5px', fontWeight: 600,
+          }}>
+            PRIVATE BETA OPEN
+          </span>
+        </div>
+      </nav>
+
+      {/* ── Hero ─────────────────────────────────────────── */}
+      <section style={{
+        display: 'grid', gridTemplateColumns: '1fr 1fr',
+        alignItems: 'center', maxWidth: '1200px', margin: '0 auto',
+        padding: '80px 48px 100px', gap: '48px',
+      }}>
+        {/* Left */}
+        <div>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: '8px',
+            background: 'rgba(255,255,255,0.05)', border: `1px solid ${BORDER}`,
+            borderRadius: '24px', padding: '8px 18px', marginBottom: '40px',
+          }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: GOLD, display: 'inline-block' }} />
+            <span style={{ fontSize: '12px', color: GRAY, letterSpacing: '0.5px' }}>
+              Four products. One platform. Unlimited brand momentum.
+            </span>
+          </div>
+          <h1 style={{
+            fontFamily: SERIF, fontSize: 'clamp(44px, 5.5vw, 72px)',
+            fontWeight: 700, lineHeight: 1.08, letterSpacing: '-0.5px', margin: '0 0 28px',
+          }}>
+            Power your destiny<br />
+            <span style={{ color: GOLD }}>across every platform.</span>
+          </h1>
+          <p style={{ fontSize: '17px', color: GRAY, lineHeight: 1.8, marginBottom: '44px', maxWidth: '460px' }}>
+            IKENGA is a unified creative operating platform — four products, four brand voices,
+            one shared engine. Founders, agencies, and creators use it to generate a full week
+            of content in one run.
+          </p>
+          <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
+            <button onClick={() => scrollTo(engineRef)} style={{
+              background: GOLD, color: BG, padding: '14px 36px',
+              borderRadius: '50px', fontWeight: 700, fontSize: '15px',
+              border: 'none', cursor: 'pointer', letterSpacing: '0.3px',
+            }}>
+              Join Early Access
+            </button>
+            <a href="#products" style={{
+              display: 'inline-flex', alignItems: 'center',
+              background: 'rgba(255,255,255,0.05)', color: 'white',
+              padding: '14px 36px', borderRadius: '50px', fontSize: '15px',
+              border: `1px solid ${BORDER}`, textDecoration: 'none',
+            }}>
+              See All Products →
+            </a>
+          </div>
+        </div>
+        {/* Right — logo */}
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <IkengaLogo size={300} />
+        </div>
+      </section>
+
+      {/* ── Products ─────────────────────────────────────── */}
+      <section id="products" style={{ padding: '96px 48px', borderTop: `1px solid ${BORDER}` }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <p style={{ fontSize: '11px', letterSpacing: '3px', color: GOLD, marginBottom: '16px', textTransform: 'uppercase' }}>
+            Four Products
+          </p>
+          <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(36px, 4.5vw, 58px)', fontWeight: 700, marginBottom: '16px' }}>
+            Every brand voice, covered.
+          </h2>
+          <p style={{ fontSize: '16px', color: GRAY, marginBottom: '52px', maxWidth: '480px', lineHeight: 1.75 }}>
+            Toggle between products and see how the same engine writes in completely different
+            voices — all within your shared account.
+          </p>
+
+          {/* Tabs */}
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '56px', flexWrap: 'wrap' }}>
+            {PRODUCTS.map(p => (
+              <button key={p.id} onClick={() => setActiveProduct(p.id)} style={{
+                padding: '10px 28px', borderRadius: '50px', fontSize: '13px', fontWeight: 600,
+                letterSpacing: '1px', cursor: 'pointer', transition: 'all 0.2s',
+                background: activeProduct === p.id ? 'transparent' : 'transparent',
+                color: activeProduct === p.id ? 'white' : 'rgba(255,255,255,0.4)',
+                border: activeProduct === p.id ? '1.5px solid white' : '1.5px solid transparent',
+              }}>
+                {p.name}
+              </button>
+            ))}
+          </div>
+
+          {/* Two-column detail */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '56px', alignItems: 'start' }}>
+            <div>
+              <p style={{ fontSize: '13px', color: GOLD, fontWeight: 600, marginBottom: '16px' }}>
+                {activeP.tagline}
+              </p>
+              <p style={{ fontSize: '16px', color: GRAY, lineHeight: 1.8, marginBottom: '28px' }}>
+                {activeP.description}
+              </p>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '28px' }}>
+                {activeP.formats.map(f => (
+                  <span key={f} style={{
+                    padding: '7px 18px', borderRadius: '50px', fontSize: '12px',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: `1px solid ${BORDER}`, color: 'rgba(255,255,255,0.7)',
+                  }}>
+                    {f}
+                  </span>
+                ))}
+              </div>
+            </div>
+            {/* Sample card */}
+            <div style={{
+              ...card(), padding: '28px', borderRadius: '16px',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+                <span style={{ fontSize: '11px', color: GRAY, letterSpacing: '2px' }}>INSTAGRAM</span>
+                <span style={{
+                  background: BGOLD, border: `1px solid ${BGOLD_BORDER}`,
+                  color: GOLD, fontSize: '11px', padding: '4px 12px',
+                  borderRadius: '4px', fontWeight: 600, letterSpacing: '1px',
+                }}>
+                  {activeP.name}
+                </span>
+              </div>
+              <p style={{ color: 'rgba(255,255,255,0.85)', lineHeight: 1.85, fontSize: '15px', marginBottom: '24px' }}>
+                {activeP.sample}
+              </p>
+              <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: '16px' }}>
+                <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.25)', letterSpacing: '0.3px' }}>
+                  Tone: {activeP.tone}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Stats ────────────────────────────────────────── */}
+      <section style={{ padding: '96px 48px', borderTop: `1px solid ${BORDER}` }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 3fr', gap: '80px', alignItems: 'start' }}>
+          {/* Left */}
+          <div>
+            <p style={{ fontSize: '11px', letterSpacing: '3px', color: GOLD, marginBottom: '20px', textTransform: 'uppercase' }}>
+              One Generation Run
+            </p>
+            <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(34px, 4vw, 52px)', fontWeight: 700, marginBottom: '20px', lineHeight: 1.1 }}>
+              A full week ready to publish.
+            </h2>
+            <p style={{ fontSize: '16px', color: GRAY, lineHeight: 1.8 }}>
+              Enter your brand, goals, and tone. IKENGA produces everything your brand needs
+              for the next 7 days — platform-formatted, in your voice, cards ready to copy and post.
+            </p>
+          </div>
+          {/* Right — vertical stat cards */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {STATS.map(s => (
+              <div key={s.label} style={{
+                ...card(), padding: '20px 28px',
+                display: 'flex', alignItems: 'center', gap: '24px', borderRadius: '12px',
+              }}>
+                <span style={{
+                  fontFamily: SERIF, fontSize: '40px', fontWeight: 700,
+                  color: GOLD, lineHeight: 1, minWidth: '48px',
+                }}>
+                  {s.number}
+                </span>
+                <span style={{ fontSize: '15px', color: GRAY }}>{s.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Live Engine ──────────────────────────────────── */}
+      <section ref={engineRef} id="engine" style={{ padding: '96px 48px', borderTop: `1px solid ${BORDER}` }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <p style={{ fontSize: '11px', letterSpacing: '3px', color: GOLD, marginBottom: '20px', textTransform: 'uppercase' }}>
+            Live Engine — No Login Needed
+          </p>
+          <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(34px, 4.5vw, 56px)', fontWeight: 700, marginBottom: '18px' }}>
+            Try it right now.
+          </h2>
+          <p style={{ fontSize: '16px', color: GRAY, lineHeight: 1.75, marginBottom: '48px' }}>
+            Paste any brand idea or content goal. The UJU Cycle™ engine extracts the signal
+            and returns a focused action — live.
+          </p>
+
+          {/* Engine card */}
+          <div style={{ ...card(), borderRadius: '20px', overflow: 'hidden', border: `1px solid ${BGOLD_BORDER}` }}>
+            <div style={{
+              padding: '18px 28px', borderBottom: `1px solid ${BORDER}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            }}>
+              <span style={{ fontFamily: SERIF, color: GOLD, fontSize: '15px', fontWeight: 600, letterSpacing: '0.5px' }}>
+                UJU Cycle™ — Live
+              </span>
+              <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '11px' }}>Consensus of Ten · Founder-grade</span>
+            </div>
+            <div style={{ padding: '28px' }}>
+              <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '13px', marginBottom: '16px' }}>
+                Paste any brand idea, goal, or post concept. IKENGA refines it into a focused action.
+              </p>
+              {/* Chips */}
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
+                {Object.keys(EXAMPLE_PROMPTS).map(label => (
+                  <button key={label} onClick={() => setPrompt(EXAMPLE_PROMPTS[label])} style={{
+                    background: BGOLD, border: `1px solid ${BGOLD_BORDER}`,
+                    color: 'rgba(212,175,55,0.85)', fontSize: '12px', padding: '6px 14px',
+                    borderRadius: '6px', cursor: 'pointer',
+                  }}>
+                    Try: {label}
+                  </button>
+                ))}
+              </div>
+              {/* Textarea */}
+              <textarea
+                value={prompt}
+                onChange={e => setPrompt(e.target.value)}
+                onKeyDown={handleKey}
+                placeholder="Paste any brand idea, goal, or post concept. IKENGA refines it into a focused action."
+                rows={5}
+                style={{
+                  width: '100%', padding: '16px', background: 'rgba(255,255,255,0.03)',
+                  border: `1px solid ${BGOLD_BORDER}`, borderRadius: '10px',
+                  color: 'white', fontSize: '14px', lineHeight: 1.7, resize: 'vertical',
+                  fontFamily: SANS, outline: 'none', boxSizing: 'border-box', marginBottom: '16px',
+                }}
+              />
+              {error && (
+                <div style={{
+                  background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.25)',
+                  color: '#fca5a5', padding: '12px 16px', borderRadius: '8px',
+                  fontSize: '13px', marginBottom: '16px',
+                }}>
+                  {error}
+                </div>
+              )}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+                <button onClick={runEngine} disabled={running} style={{
+                  background: running ? 'rgba(212,175,55,0.4)' : GOLD,
+                  color: BG, padding: '14px 44px', borderRadius: '50px',
+                  fontWeight: 700, fontSize: '15px', border: 'none',
+                  cursor: running ? 'not-allowed' : 'pointer', transition: 'all 0.2s',
+                  letterSpacing: '0.5px',
+                }}>
+                  {running ? 'The Council is convening…' : 'Run →'}
+                </button>
+                <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '12px' }}>⌘ + Enter to run</span>
+              </div>
+            </div>
+
+            {/* 9-section results */}
+            {sections && (
+              <div style={{ borderTop: `1px solid ${BORDER}`, padding: '8px 0' }}>
+                {/* Header */}
+                <div style={{
+                  padding: '20px 28px 16px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                }}>
+                  <span style={{ color: GOLD, fontFamily: SERIF, fontSize: '14px', fontWeight: 600 }}>
+                    UJU Cycle™ Report
+                  </span>
+                  <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: '11px', letterSpacing: '0.5px' }}>
+                    Consensus of Ten · 9 Sections
+                  </span>
+                </div>
+                {/* Sections */}
+                {UJU_SECTIONS.map((sec, i) => {
+                  const content = sections[sec.key];
+                  if (!content) return null;
+                  return (
+                    <div key={sec.key} style={{
+                      padding: '20px 28px',
+                      borderTop: i === 0 ? `1px solid ${BORDER}` : `1px solid rgba(255,255,255,0.04)`,
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '20px' }}>
+                        {/* Number */}
+                        <span style={{
+                          fontFamily: SERIF, color: 'rgba(212,175,55,0.35)',
+                          fontSize: '28px', fontWeight: 700, lineHeight: 1, flexShrink: 0, minWidth: '42px',
+                        }}>
+                          {sec.num}
+                        </span>
+                        {/* Content */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                            <div>
+                              <span style={{ color: GOLD, fontWeight: 600, fontSize: '14px', letterSpacing: '0.3px' }}>
+                                {sec.title}
+                              </span>
+                              <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: '12px', marginLeft: '10px' }}>
+                                — {sec.sub}
+                              </span>
+                            </div>
+                            <button onClick={() => copySection(sec.key, content)} style={{
+                              background: copied === sec.key ? 'rgba(52,211,153,0.1)' : 'rgba(212,175,55,0.07)',
+                              border: `1px solid ${copied === sec.key ? 'rgba(52,211,153,0.3)' : BGOLD_BORDER}`,
+                              color: copied === sec.key ? '#34D399' : 'rgba(212,175,55,0.7)',
+                              padding: '4px 12px', borderRadius: '4px', fontSize: '11px',
+                              cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0, marginLeft: '12px',
+                            }}>
+                              {copied === sec.key ? '✓ Copied' : 'Copy'}
+                            </button>
+                          </div>
+                          <p style={{
+                            color: 'rgba(255,255,255,0.8)', lineHeight: 1.85,
+                            fontSize: '14px', whiteSpace: 'pre-wrap', margin: '10px 0 0',
+                          }}>
+                            {content}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+                {/* Footer */}
+                <div style={{ padding: '16px 28px', borderTop: `1px solid ${BORDER}` }}>
+                  <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)', letterSpacing: '0.5px' }}>
+                    Powered by IKENGA AI — Chi in Motion. UJU CYCLE™ is a proprietary methodology of UJU GROUP LIMITED.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Built For ────────────────────────────────────── */}
+      <section style={{ padding: '96px 48px', borderTop: `1px solid ${BORDER}` }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 3fr', gap: '80px', alignItems: 'start' }}>
+          <div>
+            <p style={{ fontSize: '11px', letterSpacing: '3px', color: GOLD, marginBottom: '20px', textTransform: 'uppercase' }}>
+              Built For
+            </p>
+            <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(32px, 3.5vw, 50px)', fontWeight: 700, lineHeight: 1.15 }}>
+              Teams that cannot afford to sound generic
+            </h2>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {BUILT_FOR.map(item => (
+              <div key={item.title} style={{ ...card(), padding: '28px 32px', borderRadius: '16px' }}>
+                <h3 style={{ color: GOLD, fontFamily: SERIF, fontSize: '20px', fontWeight: 700, marginBottom: '12px' }}>
+                  {item.title}
+                </h3>
+                <p style={{ fontSize: '15px', color: GRAY, lineHeight: 1.75 }}>{item.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Early Access ─────────────────────────────────── */}
+      <section id="early-access" style={{ padding: '80px 48px', borderTop: `1px solid ${BORDER}` }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          <div style={{
+            ...card(), borderRadius: '24px', padding: '60px',
+            display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px', alignItems: 'center',
+          }}>
+            {/* Left */}
+            <div>
+              <p style={{ fontSize: '11px', letterSpacing: '3px', color: GOLD, marginBottom: '20px', textTransform: 'uppercase' }}>
+                Early Access
+              </p>
+              <h2 style={{ fontFamily: SERIF, fontSize: 'clamp(32px, 3.5vw, 50px)', fontWeight: 700, marginBottom: '18px', lineHeight: 1.15 }}>
+                Be early. Stay ahead.
+              </h2>
+              <p style={{ fontSize: '16px', color: GRAY, lineHeight: 1.8, marginBottom: '32px' }}>
+                Join the waitlist. Get your login link. Start with 3 free generations —
+                no card required. Upgrade when you are ready.
+              </p>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                {['3 free generations', 'All 4 products included', 'First in, first served'].map(perk => (
+                  <span key={perk} style={{
+                    background: 'rgba(255,255,255,0.05)', border: `1px solid ${BORDER}`,
+                    color: GRAY, fontSize: '13px', padding: '8px 18px', borderRadius: '50px',
+                  }}>
+                    {perk}
+                  </span>
+                ))}
+              </div>
+            </div>
+            {/* Right */}
+            <div>
+              {!emailDone ? (
+                <>
+                  <form onSubmit={handleEmail} style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+                    <input
+                      type="email" value={email} onChange={e => setEmail(e.target.value)}
+                      placeholder="Enter your best email" required
+                      style={{
+                        flex: 1, padding: '15px 20px',
+                        background: 'rgba(255,255,255,0.05)', border: `1px solid ${BORDER}`,
+                        borderRadius: '50px', color: 'white', fontSize: '14px',
+                        fontFamily: SANS, outline: 'none', boxSizing: 'border-box',
+                      }}
+                    />
+                    <button type="submit" style={{
+                      background: GOLD, color: BG, padding: '15px 28px',
+                      borderRadius: '50px', fontWeight: 700, fontSize: '14px',
+                      border: 'none', cursor: 'pointer', whiteSpace: 'nowrap',
+                    }}>
+                      Get Early Access
+                    </button>
+                  </form>
+                  <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '13px', textAlign: 'center' }}>
+                    Already signed up?{' '}
+                    <button onClick={() => scrollTo(engineRef)} style={{
+                      color: GOLD, background: 'none', border: 'none',
+                      cursor: 'pointer', fontSize: '13px', padding: 0, textDecoration: 'underline',
+                    }}>
+                      Access your dashboard →
+                    </button>
+                  </p>
+                </>
+              ) : (
+                <div style={{
+                  background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.25)',
+                  borderRadius: '12px', padding: '24px', color: '#34D399', fontSize: '15px', lineHeight: 1.7,
+                }}>
+                  ✓ You are on the list. Watch your inbox — your login arrives soon.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ───────────────────────────────────────── */}
+      <footer style={{
+        padding: '28px 48px', borderTop: `1px solid ${BORDER}`,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        flexWrap: 'wrap', gap: '12px',
+      }}>
+        <span style={{ color: 'rgba(255,255,255,0.22)', fontSize: '13px' }}>
+          © 2026 IKENGA AI. Chi in Motion.
+        </span>
+        <span style={{ color: 'rgba(255,255,255,0.18)', fontSize: '12px' }}>
+          Built for brands, agencies, and creators who refuse to move small.
+        </span>
+      </footer>
+
+    </div>
+  );
+}

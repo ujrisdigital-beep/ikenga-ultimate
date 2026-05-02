@@ -1,0 +1,8 @@
+{/* IKENGA Logo Image */}
+<div className="absolute top-6 left-6 z-50">
+  <img 
+    src="/ikenga-logo.png" 
+    alt="IKENGA AI" 
+    className="h-12 w-auto"
+  />
+</div>

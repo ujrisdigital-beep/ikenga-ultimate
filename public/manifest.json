@@ -1,0 +1,18 @@
+{
+  "name": "IKENGA AI",
+  "short_name": "IKENGA",
+  "description": "Chi in Motion - AI Brand Intelligence Platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080602",
+  "theme_color": "#D4AF37",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logos/ikenga-3d-logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["business", "productivity", "ai"]
+}
