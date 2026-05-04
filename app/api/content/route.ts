@@ -53,7 +53,7 @@ export async function PATCH(request: Request): Promise<Response> {
 
   const { error } = await supabase
     .from("content_items")
-    .update({ [field]: value })
+    .update({ [field]: value } as Record<string, boolean>)
     .eq("id", id)
     .eq("email", email); // owns it
 
