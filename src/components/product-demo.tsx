@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PRODUCTS, PRODUCT_IDS, type ProductId } from "@/src/ikenga/products/config";
+import { PRODUCTS, PRODUCT_IDS, type ProductId } from "@/ikenga/products/config";
 
 export function ProductDemo() {
   const [active, setActive] = useState<ProductId>("IKENGA");

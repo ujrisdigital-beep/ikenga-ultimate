@@ -1,6 +1,6 @@
 "use client";
 
-import { PRODUCTS, PRODUCT_IDS, type ProductId } from "@/src/ikenga/products/config";
+import { PRODUCTS, PRODUCT_IDS, type ProductId } from "@/ikenga/products/config";
 
 interface Props {
   active:   ProductId;

@@ -8,9 +8,9 @@
 // Method: POST
 // ============================================================
 
-import { refineResponse, formatRefinedOutput, proprietaryResponse } from "@/src/ikenga/uju/refiner";
-import type { UJUDomain, UJURefinementInput } from "@/src/ikenga/uju/types";
-import { requireAdminApiAccess } from "@/src/ikenga/lib/adminApi";
+import { refineResponse, formatRefinedOutput, proprietaryResponse } from "@/ikenga/uju/refiner";
+import type { UJUDomain, UJURefinementInput } from "@/ikenga/uju/types";
+import { requireAdminApiAccess } from "@/ikenga/lib/adminApi";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

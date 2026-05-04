@@ -2,10 +2,10 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { ProductSwitcher } from "@/src/components/product-switcher";
-import { ContentGallery, type ContentItem } from "@/src/components/content-gallery";
-import { OnboardingWidget } from "@/src/components/onboarding-widget";
-import { PRODUCTS, type ProductId } from "@/src/ikenga/products/config";
+import { ProductSwitcher } from "@/components/product-switcher";
+import { ContentGallery, type ContentItem } from "@/components/content-gallery";
+import { OnboardingWidget } from "@/components/onboarding-widget";
+import { PRODUCTS, type ProductId } from "@/ikenga/products/config";
 
 // ── Types ────────────────────────────────────────────────────
 

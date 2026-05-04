@@ -1,7 +1,7 @@
 import Image from "next/image";
-import { WaitlistForm } from "@/src/components/waitlist-form";
-import { LiveDemo } from "@/src/components/live-demo";
-import { ProductDemo } from "@/src/components/product-demo";
+import { WaitlistForm } from "@/components/waitlist-form";
+import { LiveDemo } from "@/components/live-demo";
+import { ProductDemo } from "@/components/product-demo";
 
 const output = [
   { n: "14", label: "Platform-ready social posts" },

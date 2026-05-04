@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PRODUCTS, type ProductId } from "@/src/ikenga/products/config";
+import { PRODUCTS, type ProductId } from "@/ikenga/products/config";
 
 interface Analytics {
   funnel: { signups: number; dashboardUsers: number; generatedAtLeastOnce: number; proUsers: number };

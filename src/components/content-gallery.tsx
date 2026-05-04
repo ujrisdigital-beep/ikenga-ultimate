@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { PRODUCTS, type ProductId } from "@/src/ikenga/products/config";
+import { PRODUCTS, type ProductId } from "@/ikenga/products/config";
 
 export interface ContentItem {
   id:           string;
