@@ -51,9 +51,12 @@ export async function PATCH(request: Request): Promise<Response> {
     return Response.json({ error: "id and field ('published'|'copied') are required." }, { status: 400 });
   }
 
+  const updateData: { published?: boolean; copied?: boolean } =
+    field === "published" ? { published: value } : { copied: value };
+
   const { error } = await supabase
     .from("content_items")
-    .update({ [field]: value } as Record<string, boolean>)
+    .update(updateData)
     .eq("id", id)
     .eq("email", email); // owns it
 
